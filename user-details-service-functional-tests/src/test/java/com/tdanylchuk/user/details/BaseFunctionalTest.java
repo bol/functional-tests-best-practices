@@ -3,7 +3,6 @@ package com.tdanylchuk.user.details;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.tdanylchuk.user.details.steps.ContactsServiceSteps;
 import com.tdanylchuk.user.details.steps.UserDetailsServiceSteps;
-import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.springframework.util.ResourceUtils.getFile;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -41,8 +41,10 @@ public abstract class BaseFunctionalTest {
 
     public static String readFile(String path) {
         try {
-            return FileUtils.readFileToString(getFile("classpath:" + path), Charset.defaultCharset());
-        } catch (IOException e) {
+            return Files.readString(Path.of(
+                    ClassLoader.getSystemResource(path).toURI()
+            ));
+        } catch (IOException | URISyntaxException e) {
             throw new RuntimeException("File cannot be read");
         }
     }
